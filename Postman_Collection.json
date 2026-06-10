@@ -1,0 +1,618 @@
+{
+  "info": {
+    "name": "Event Registration System API",
+    "description": "Complete API collection for testing the Event Registration System with concurrent access safety",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the API is running"
+          },
+          "response": []
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Get API information"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('event_id', jsonData.id);",
+                  "  pm.test('Event created successfully', function () {",
+                  "    pm.expect(pm.response.code).to.equal(201);",
+                  "    pm.expect(jsonData.name).to.equal('Tech Conference 2024');",
+                  "    pm.expect(jsonData.available_seats).to.equal(100);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tech Conference 2024\",\n  \"total_seats\": 100,\n  \"event_date\": \"2024-12-15T10:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Create a new event with name, total seats, and date"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event - Duplicate Name (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tech Conference 2024\",\n  \"total_seats\": 50,\n  \"event_date\": \"2024-12-20T14:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Try to create event with duplicate name (should return 409)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event - Invalid Date (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Past Event\",\n  \"total_seats\": 50,\n  \"event_date\": \"2020-12-15T10:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Try to create event with past date (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event - Invalid Seats (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Small Event\",\n  \"total_seats\": 0,\n  \"event_date\": \"2024-12-25T10:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Try to create event with zero seats (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Get all events"
+          },
+          "response": []
+        },
+        {
+          "name": "List Events - Upcoming Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events?upcoming_only=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"],
+              "query": [
+                {
+                  "key": "upcoming_only",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get only upcoming events (date > now)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Events - Sorted by Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events?sort_by_date=true&upcoming_only=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"],
+              "query": [
+                {
+                  "key": "sort_by_date",
+                  "value": "true"
+                },
+                {
+                  "key": "upcoming_only",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get events sorted by date ascending"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events/{{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events", "{{event_id}}"]
+            },
+            "description": "Get details for a specific event"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event - Not Found (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events/99999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events", "99999"]
+            },
+            "description": "Try to get non-existent event (should return 404)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Registrations",
+      "item": [
+        {
+          "name": "Register User - User 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('registration_id_1', jsonData.id);",
+                  "  pm.test('User registered successfully', function () {",
+                  "    pm.expect(pm.response.code).to.equal(201);",
+                  "    pm.expect(jsonData.username).to.equal('alice');",
+                  "    pm.expect(jsonData.is_active).to.equal(1);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"event_id\": {{event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Register first user for event"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User - User 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('registration_id_2', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"bob\",\n  \"event_id\": {{event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Register second user for event"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User - User 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"charlie\",\n  \"event_id\": {{event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Register third user for event"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User - Duplicate (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"event_id\": {{event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Try to register same user twice (should return 409)"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User - Empty Username (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"\",\n  \"event_id\": {{event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Try to register with empty username (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Get all active registrations"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations/event/{{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations", "event", "{{event_id}}"]
+            },
+            "description": "Get all active registrations for specific event"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Registration Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations/{{registration_id_1}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations", "{{registration_id_1}}"]
+            },
+            "description": "Get details for specific registration"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations/{{registration_id_1}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations", "{{registration_id_1}}"]
+            },
+            "description": "Cancel a registration (soft delete, is_active becomes 0)"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Registration - Already Cancelled (Should Fail)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations/{{registration_id_1}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations", "{{registration_id_1}}"]
+            },
+            "description": "Try to cancel already-cancelled registration (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Registration - Not Found (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations/99999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations", "99999"]
+            },
+            "description": "Try to get non-existent registration (should return 404)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Concurrent Testing",
+      "item": [
+        {
+          "name": "Setup - Create Limited Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('limited_event_id', jsonData.id);",
+                  "  pm.test('Limited event created', function () {",
+                  "    pm.expect(jsonData.total_seats).to.equal(2);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Limited Capacity Event {{$timestamp}}\",\n  \"total_seats\": 2,\n  \"event_date\": \"2024-12-30T15:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Create event with only 2 seats for concurrent testing"
+          },
+          "response": []
+        },
+        {
+          "name": "Concurrent - Register User 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"concurrent_user_1\",\n  \"event_id\": {{limited_event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Register first user for limited event"
+          },
+          "response": []
+        },
+        {
+          "name": "Concurrent - Register User 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"concurrent_user_2\",\n  \"event_id\": {{limited_event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Register second user for limited event (event now full)"
+          },
+          "response": []
+        },
+        {
+          "name": "Concurrent - Register User 3 (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"concurrent_user_3\",\n  \"event_id\": {{limited_event_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registrations"]
+            },
+            "description": "Try to register third user when event is full (should return 409)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "event_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "registration_id_1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "registration_id_2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "limited_event_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
