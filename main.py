@@ -519,9 +519,9 @@ if __name__ == "__main__":
     ║    Status: ✅ Running                                         ║
     ║                                                               ║
     ║    📚 Documentation:                                          ║
-    ║       • Swagger UI:    http://localhost:8000/docs            ║
-    ║       • ReDoc:         http://localhost:8000/redoc           ║
-    ║       • Landing Page:  http://localhost:8000/                ║
+    ║       • Swagger UI:    http://localhost:5000/docs            ║
+    ║       • ReDoc:         http://localhost:5000/redoc           ║
+    ║       • Landing Page:  http://localhost:5000/                ║
     ║                                                               ║
     ║    🗄️  Database: {settings.DATABASE_URL.split('://')[0].upper():<56}║
     ║    🔧 Debug Mode: {str(settings.DEBUG):<53}║
@@ -536,7 +536,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=3000,
+        port=5000,
         reload=settings.DEBUG,
         log_level="info"
     )

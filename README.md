@@ -236,10 +236,10 @@ The API will start on `http://localhost:8000`
 
 ### Access Points
 
-- **API Documentation**: http://localhost:8000/docs (Swagger UI)
-- **Alternative Documentation**: http://localhost:8000/redoc (ReDoc)
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
-- **Health Check**: http://localhost:8000/health
+- **API Documentation**: http://localhost:5000/docs (Swagger UI)
+- **Alternative Documentation**: http://localhost:5000/redoc (ReDoc)
+- **OpenAPI Schema**: http://localhost:5000/openapi.json
+- **Health Check**: http://localhost:5000/health
 
 ## 📡 API Endpoints
 
